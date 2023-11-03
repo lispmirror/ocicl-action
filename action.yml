@@ -6,6 +6,8 @@ inputs:
     required: true
   gpg_public_key:
     required: true
+  gpg_passphrase:
+    required: true
   dockerhub_password:
     required: true
 runs:
@@ -85,7 +87,7 @@ runs:
         NAME=$(cat NAME)
         FILE=$(cd src; ls ${NAME}-*.tar.gz)
         gpg -k
-        gpg --pinentry-mode loopback --armor -u "ocicl-tarball-signer" --output ${FILE}.sig --detach-sig src/${NAME}-*.tar.gz
+        gpg --armor -u "ocicl-tarball-signer" --passphrase "$GPG_PASSPHRASE" --output ${FILE}.sig --detach-sig src/${NAME}-*.tar.gz
         for S in $(cat SYSTEMS); do
           S=$(echo ${S} | sed 's/+$/_plus/g' | sed 's/+/_plus_/g')
           retry_command oras push ghcr.io/lispmirror/${S}.sig:latest ${FILE}.sig:application/vnd.uknown/layer.v1+gzip
@@ -96,3 +98,5 @@ runs:
         TARBALL=$(ls src/${NAME}-*.tar.gz)
         retry_command podman run --rm --tty --interactive --volume $(pwd):/github/workspace:z ghcr.io/ocicl/ocicl-sandbox:latest rekor-cli upload --signature /github/workspace/${FILE}.sig --public-key /github/workspace/pub.key --artifact /github/workspace/${TARBALL}
       shell: bash
+      env:
+        GPG_PASSPHRASE: '${{ inputs.gpg_passphrase }}'
