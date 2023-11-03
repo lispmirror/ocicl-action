@@ -82,7 +82,6 @@ runs:
           done
         }
         set -x
-        export GPG_TTY=$(tty) # should prevent 'gpg: signing failed: Inappropriate ioctl for device' errors
         NAME=$(cat NAME)
         FILE=$(cd src; ls ${NAME}-*.tar.gz)
         gpg -k
