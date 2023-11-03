@@ -85,7 +85,7 @@ runs:
         NAME=$(cat NAME)
         FILE=$(cd src; ls ${NAME}-*.tar.gz)
         gpg -k
-        gpg --armor -u "ocicl-tarball-signer" --output ${FILE}.sig --detach-sig src/${NAME}-*.tar.gz
+        gpg --pinentry-mode loopback --armor -u "ocicl-tarball-signer" --output ${FILE}.sig --detach-sig src/${NAME}-*.tar.gz
         for S in $(cat SYSTEMS); do
           S=$(echo ${S} | sed 's/+$/_plus/g' | sed 's/+/_plus_/g')
           retry_command oras push ghcr.io/lispmirror/${S}.sig:latest ${FILE}.sig:application/vnd.uknown/layer.v1+gzip
